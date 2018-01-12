@@ -1,19 +1,23 @@
 module Constants exposing (..)
 
-import Colors exposing (..)
 import FontAwesome exposing (..)
+import Color
+
+
+colors =
+    -- Colors generated with http://tools.medialab.sciences-po.fr/iwanthue/
+    -- TODO: There are certainly better color sets available, but this will do for now
+    -- [ ( 210, 75, 82 ), ( 82, 199, 43 ), ( 195, 72, 230 ), ( 159, 189, 35 ), ( 113, 64, 207 ), ( 83, 185, 75 ), ( 140, 106, 245 ), ( 168, 179, 52 ), ( 212, 67, 193 ), ( 63, 182, 116 ), ( 178, 101, 223 ), ( 111, 156, 59 ), ( 96, 99, 209 ), ( 209, 159, 45 ), ( 89, 129, 221 ), ( 237, 60, 27 ), ( 164, 104, 193 ), ( 230, 133, 31 ), ( 205, 83, 173 ), ( 181, 147, 59 ), ( 211, 72, 127 ), ( 218, 76, 35 ), ( 196, 102, 50 ), ( 216, 62, 57 ) ]
+    [ ( 0, 31, 62 ), ( 0, 116, 217 ), ( 128, 219, 255 ), ( 57, 204, 204 ), ( 61, 153, 112 ), ( 46, 204, 64 ), ( 1, 255, 112 ), ( 255, 220, 0 ), ( 255, 133, 27 ), ( 255, 65, 54 ), ( 133, 20, 75 ), ( 240, 18, 190 ), ( 177, 13, 201 ), ( 17, 17, 17 ), ( 170, 170, 170 ), ( 221, 221, 221 ) ]
+        |> List.map (\( r, b, g ) -> Color.rgb r b g)
 
 
 fallbackColor =
-    white
+    Color.rgb 255 255 255
 
 
 fallbackIcon =
     fa_500px
-
-
-colors =
-    [ navy, blue, aqua, teal, olive, green, lime, yellow, orange, red, maroon, fuchsia, purple, black, gray, silver ]
 
 
 icons =
