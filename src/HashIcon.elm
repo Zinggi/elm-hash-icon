@@ -8,12 +8,15 @@ module HashIcon
         , iconsFromString
         , iconFromStringWithSeed
         , randomIcon
+        , Ratio
         )
 
 {-|
 
 
 # Icons
+
+@docs Ratio
 
 @docs iconFromString, iconsFromString, iconWithColor
 
@@ -40,19 +43,11 @@ import Murmur3
 import Constants exposing (icons, colors, fallbackIcon)
 
 
-{-| Can be used to generate random icons
--}
-randomIcon : Float -> Generator (Html msg)
-randomIcon ratio =
-    Random.map2 (,) (goodColors ratio) randomFontIcon
-        |> Random.map (\( c1c2c3, icon ) -> constantIcon c1c2c3 icon)
-
-
 {-| The ratio controls which color contrast is acceptable for us.
 A smaller ratio allows for more combinations, but many of them might be ugly.
 These values seem to provide a quite good trade-off between good icons and still pretty high collision resistance:
 
-  - 1.4 -> An ok chance of getting a good icon, but there are some ugly ones too.
+  - 1.4 -> An ok chance of getting a good icon, but there are quite a few ugly ones as well.
     We get about 21 bits of entropy with this.
 
   - 2.1 -> Mostly good looking icons. Ca 20 bits.
@@ -61,12 +56,27 @@ These values seem to provide a quite good trade-off between good icons and still
 
   - 9.5 -> Almost no bad one. Ca. 16 bits
 
+-}
+type alias Ratio =
+    Float
+
+
+{-| Can be used to generate random icons
+-}
+randomIcon : Ratio -> Generator (Html msg)
+randomIcon ratio =
+    Random.map2 (,) (goodColors ratio) randomFontIcon
+        |> Random.map (\( c1c2c3, icon ) -> constantIcon c1c2c3 icon)
+
+
+{-|
+
     iconFromString 2.1 "hash icon"
 
 ![](./examples/imgs/hashIcon.svg)
 
 -}
-iconFromString : Float -> String -> Html msg
+iconFromString : Ratio -> String -> Html msg
 iconFromString =
     -- TODO: make size configurable
     iconFromStringWithSeed 42
@@ -75,7 +85,7 @@ iconFromString =
 {-| Same as `iconFromString`, but allows you to adjust the seed used in the internal Murmur3 hash function.
 You probably don't need this.
 -}
-iconFromStringWithSeed : Int -> Float -> String -> Html msg
+iconFromStringWithSeed : Int -> Ratio -> String -> Html msg
 iconFromStringWithSeed seed ratio string =
     Random.step (randomIcon ratio) (Random.initialSeed (Murmur3.hashString seed string))
         |> Tuple.first
@@ -89,7 +99,7 @@ Useful to get more entropy if you need higher collision resistance.
 ![](./examples/imgs/hashIcons.svg)
 
 -}
-iconsFromString : Float -> Int -> String -> List (Html msg)
+iconsFromString : Ratio -> Int -> String -> List (Html msg)
 iconsFromString ratio num string =
     List.map (\i -> iconFromStringWithSeed i ratio string) (List.range 1 num)
 
@@ -98,17 +108,17 @@ iconsFromString ratio num string =
 The higher the more collision resistant.
 
 Note: Since I wasn't sure if I got the combinatorics right,
-I called it estimate, but it might also be the correct number ¯*(ツ)*/¯
+I called it estimate, but it might also be the correct number 🤷
 
 -}
-estimateNumberOfPossibleIcons : Float -> Int
+estimateNumberOfPossibleIcons : Ratio -> Int
 estimateNumberOfPossibleIcons ratio =
     List.length (allColorCombinations ratio) * 694
 
 
 {-| The same as `estimateNumberOfPossibleIcons`, but in bits.
 -}
-estimateEntropy : Float -> Float
+estimateEntropy : Ratio -> Float
 estimateEntropy ratio =
     logBase 2 (toFloat <| estimateNumberOfPossibleIcons ratio)
 
@@ -129,7 +139,7 @@ e.g from worst combination to best.
 Peeking at the top values of this list allows you to find a nice value for the ratio.
 Combine this with `iconWithColor` to look at the resulting icons.
 -}
-allColorCombinations : Float -> List ( Color, Color, Color )
+allColorCombinations : Ratio -> List ( Color, Color, Color )
 allColorCombinations ratio =
     List.concatMap (\c1 -> List.concatMap (\c2 -> List.map (\c3 -> ( c1, c2, c3 )) (white :: colors)) colors) (white :: colors)
         |> List.filter
