@@ -5,7 +5,7 @@
 **[Demo](https://zinggi.github.io/randomDemos/other/elmHashIcon.html)** / [Source](https://github.com/Zinggi/elm-hash-icon/blob/master/examples/Main.elm)
 
 This implements a sort of **visual hash** function.  
-E.g, the icons above were generated using `iconsFromString 120 2.1 5 "elm"`.  
+E.g, the icons above were generated using `iconsFromString 120 3.0 5 "Elm"`.  
 The idea is to create a unique icon for every possible input.  
 This can for instance be used as an avatar for anonymous users in a forum.  
 It might also be used to quickly confirm if two files are different.  
