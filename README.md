@@ -5,6 +5,7 @@
 **[Demo](https://zinggi.github.io/randomDemos/other/elmHashIcon.html)** / [Source](https://github.com/Zinggi/elm-hash-icon/blob/master/examples/Main.elm)
 
 This implements a sort of **visual hash** function.  
+E.g, the icons above were generated using `iconsFromString 120 2.1 5 "elm"`.  
 The idea is to create a unique icon for every possible input.  
 This can for instance be used as an avatar for anonymous users in a forum.  
 It might also be used to quickly confirm if two files are different.  
@@ -35,7 +36,7 @@ Color combinations with a contrast ratio below the cut-off ratio are discarded.
 
 To increase the collision resistance, you might want to use multiple icons in a row.
 E.g. with a ratio of 3.4 a row of 7 icons provides as many bytes as MD5.
-Or with a ratio of 9.5 we would need 8 icons, but it would look much nicer.
+Or with a ratio of 8.4 we would need 8 icons, but it would look much nicer.
 
 ## Customize
 Want to use another set of colors? Another set of icons?  
@@ -46,10 +47,22 @@ Also, having a few forks around that take the same idea but with different trade
 
 If you do end up forking this library, please **let me know** so that I can provide a link here.  
 
+## Bugs
+Some icons are chopped off.
+The problem has already been noted [here](https://github.com/jystic/elm-font-awesome/issues/1) and is hopefully fixed soon.
+
+## Update Log
+**Note**: I will bump the major version every time there are some visual changes.
+Even if it would technically not be a major change,
+it would break the implicit contract that the same string always hashes to the same icon.
+
+  * 2.0.0 -> Removed brands by default, but they can be enabled if desired.
+  * 1.0.0 -> First version
+
 ## Prior art
 
- * Probably the [original "identicon"](https://web.archive.org/web/20080703155519/http://www.docuverse.com/blog/donpark/2007/01/18/visual-security-9-block-ip-identification)
- * Github's version, e.g. as implemented [here](https://github.com/pukkamustard/elm-identicon)
+  * Probably the [original "identicon"](https://web.archive.org/web/20080703155519/http://www.docuverse.com/blog/donpark/2007/01/18/visual-security-9-block-ip-identification)
+  * Github's version, e.g. as implemented [here](https://github.com/pukkamustard/elm-identicon)
 
 ## Credits
 Icons from [Font Awesome](https://fontawesome.com/)

@@ -11,12 +11,23 @@ module HashIcon
         , randomIcon
         , Ratio
         , Size
+        , iconFromStringWithBrands
+        , iconsFromStringWithBrands
+        , iconWithColorWithBrands
+        , estimateNumberOfPossibleIconsWithBrands
+        , estimateEntropyWithBrands
+        , randomIconWithBrands
+        , iconFromStringWithSeedWithBrands
+        , iconsFromStringWithSeedWithBrands
         )
 
 {-|
 
 
 # Icons
+
+All functions are available in two variants, normal or with brands.
+The ones with brands add a bit more entropy, but you might not want to use icons of other brands in your product.
 
 @docs Ratio, Size
 
@@ -32,6 +43,13 @@ module HashIcon
 
 @docs randomIcon, iconFromStringWithSeed, iconsFromStringWithSeed
 
+
+## With Brands
+
+@docs iconFromStringWithBrands, iconsFromStringWithBrands, iconWithColorWithBrands
+@docs estimateNumberOfPossibleIconsWithBrands, estimateEntropyWithBrands
+@docs randomIconWithBrands, iconFromStringWithSeedWithBrands, iconsFromStringWithSeedWithBrands
+
 -}
 
 import Color exposing (Color)
@@ -42,7 +60,7 @@ import Random.Pcg as Random exposing (Generator)
 import Color.Accessibility exposing (contrastRatio)
 import Color.Convert exposing (colorToHex)
 import Murmur3
-import Constants exposing (icons, colors, fallbackIcon)
+import Constants exposing (icons, brands, colors, fallbackIcon)
 
 
 {-| The ratio controls which color contrast is acceptable for us.
@@ -56,7 +74,7 @@ These values seem to provide a quite good trade-off between good icons and still
 
   - 3.4 -> Very good looking icons. Ca. 19 bits.
 
-  - 9.5 -> Almost no bad one. Ca. 16 bits
+  - 8.4 -> Almost no bad one. Ca. 16 bits
 
 -}
 type alias Ratio =
@@ -76,6 +94,13 @@ randomIcon size ratio =
         |> Random.map (\( c1c2c3, icon ) -> constantIcon size c1c2c3 icon)
 
 
+{-| -}
+randomIconWithBrands : Size -> Ratio -> Generator (Html msg)
+randomIconWithBrands size ratio =
+    Random.map2 (,) (goodColors ratio) randomFontIconBrands
+        |> Random.map (\( c1c2c3, icon ) -> constantIcon size c1c2c3 icon)
+
+
 {-| Turns some text into an icon.
 Given the same string, the icon will always be the same.
 
@@ -89,12 +114,25 @@ iconFromString =
     iconFromStringWithSeed 42
 
 
+{-| -}
+iconFromStringWithBrands : Size -> Ratio -> String -> Html msg
+iconFromStringWithBrands =
+    iconFromStringWithSeedWithBrands 42
+
+
 {-| Same as `iconFromString`, but allows you to adjust the seed used in the internal Murmur3 hash function.
 You probably don't need this.
 -}
 iconFromStringWithSeed : Int -> Size -> Ratio -> String -> Html msg
 iconFromStringWithSeed seed size ratio string =
     Random.step (randomIcon size ratio) (Random.initialSeed (Murmur3.hashString seed string))
+        |> Tuple.first
+
+
+{-| -}
+iconFromStringWithSeedWithBrands : Int -> Size -> Ratio -> String -> Html msg
+iconFromStringWithSeedWithBrands seed size ratio string =
+    Random.step (randomIconWithBrands size ratio) (Random.initialSeed (Murmur3.hashString seed string))
         |> Tuple.first
 
 
@@ -111,12 +149,24 @@ iconsFromString size ratio num string =
     List.map (\i -> iconFromStringWithSeed i size ratio string) (List.range 1 num)
 
 
+{-| -}
+iconsFromStringWithBrands : Size -> Ratio -> Int -> String -> List (Html msg)
+iconsFromStringWithBrands size ratio num string =
+    List.map (\i -> iconFromStringWithSeedWithBrands i size ratio string) (List.range 1 num)
+
+
 {-| Same as `iconsFromString`, but allows you to specify an offset to the seed used
 in the internal Murmur3 hash function. You probably don't need this.
 -}
 iconsFromStringWithSeed : Int -> Size -> Ratio -> Int -> String -> List (Html msg)
 iconsFromStringWithSeed seedOffset size ratio num string =
     List.map (\i -> iconFromStringWithSeed (i + seedOffset) size ratio string) (List.range 1 num)
+
+
+{-| -}
+iconsFromStringWithSeedWithBrands : Int -> Size -> Ratio -> Int -> String -> List (Html msg)
+iconsFromStringWithSeedWithBrands seedOffset size ratio num string =
+    List.map (\i -> iconFromStringWithSeedWithBrands (i + seedOffset) size ratio string) (List.range 1 num)
 
 
 {-| Shows you the number of possible icons for a given ratio.
@@ -128,7 +178,13 @@ I called it estimate, but it might also be the correct number 🤷
 -}
 estimateNumberOfPossibleIcons : Ratio -> Int
 estimateNumberOfPossibleIcons ratio =
-    List.length (allColorCombinations ratio) * 694
+    List.length (allColorCombinations ratio) * (465 + 115)
+
+
+{-| -}
+estimateNumberOfPossibleIconsWithBrands : Ratio -> Int
+estimateNumberOfPossibleIconsWithBrands ratio =
+    List.length (allColorCombinations ratio) * (465 + 115 + 324)
 
 
 {-| The same as `estimateNumberOfPossibleIcons`, but in bits.
@@ -138,6 +194,12 @@ estimateEntropy ratio =
     logBase 2 (toFloat <| estimateNumberOfPossibleIcons ratio)
 
 
+{-| -}
+estimateEntropyWithBrands : Ratio -> Float
+estimateEntropyWithBrands ratio =
+    logBase 2 (toFloat <| estimateNumberOfPossibleIconsWithBrands ratio)
+
+
 {-| Display an icon with a fixed color scheme. Very useful in combination with allColorCombinations.
 -}
 iconWithColor : Size -> ( Color, Color, Color ) -> String -> Html msg
@@ -145,6 +207,16 @@ iconWithColor size c1c2c3 string =
     let
         ( icon, _ ) =
             Random.step randomFontIcon (Random.initialSeed (Murmur3.hashString 42 string))
+    in
+        constantIcon size c1c2c3 icon
+
+
+{-| -}
+iconWithColorWithBrands : Size -> ( Color, Color, Color ) -> String -> Html msg
+iconWithColorWithBrands size c1c2c3 string =
+    let
+        ( icon, _ ) =
+            Random.step randomFontIconBrands (Random.initialSeed (Murmur3.hashString 42 string))
     in
         constantIcon size c1c2c3 icon
 
@@ -182,7 +254,7 @@ foreignObject x=20 y=20 width=80 height=80
     -> 120 -> (120, 120*1/12, 120*10/12, 120/10, 120*2/12, 120*8/12)
 
 -}
-constantIcon : Size -> ( Color, Color, Color ) -> (Color -> number -> Html msg) -> Html msg
+constantIcon : Size -> ( Color, Color, Color ) -> Html msg -> Html msg
 constantIcon size ( c1, c2, c3 ) icon =
     svg
         [ width (toString size), height (toString size), viewBox "0 0 120 120" ]
@@ -198,13 +270,25 @@ constantIcon size ( c1, c2, c3 ) icon =
             , strokeWidth "12"
             ]
             []
-        , foreignObject [ x "20", y "20", width "80", height "80" ] [ icon c3 80 ]
+        , foreignObject
+            [ x "20"
+            , y "20"
+            , width "80"
+            , height "80"
+            , Svg.Attributes.style ("color: " ++ colorToHex c3)
+            ]
+            [ icon ]
         ]
 
 
-randomFontIcon : Generator (Color -> Int -> Html msg)
+randomFontIcon : Generator (Html msg)
 randomFontIcon =
     Random.sample icons |> Random.map (Maybe.withDefault fallbackIcon)
+
+
+randomFontIconBrands : Generator (Html msg)
+randomFontIconBrands =
+    Random.sample (icons ++ brands) |> Random.map (Maybe.withDefault fallbackIcon)
 
 
 randomColor : Color -> List Color -> Generator Color

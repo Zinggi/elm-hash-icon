@@ -1,5 +1,5 @@
 {
-    "version": "1.0.1",
+    "version": "2.0.0",
     "summary": "A library for creating consistent, good looking, random icons",
     "repository": "https://github.com/Zinggi/elm-hash-icon.git",
     "license": "BSD3",
@@ -16,7 +16,7 @@
         "elm-lang/html": "2.0.0 <= v < 3.0.0",
         "elm-lang/svg": "2.0.0 <= v < 3.0.0",
         "eskimoblood/elm-color-extra": "5.0.0 <= v < 6.0.0",
-        "jystic/elm-font-awesome": "2.0.1 <= v < 3.0.0",
+        "jystic/elm-font-awesome": "3.0.0 <= v < 4.0.0",
         "mgold/elm-random-pcg": "5.0.2 <= v < 6.0.0"
     },
     "elm-version": "0.18.0 <= v < 0.19.0"
