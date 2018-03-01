@@ -101,7 +101,7 @@ iconFromStringWithSeed seed size ratio string =
 {-| Same as `iconFromString`, but gives you a list of icons.
 Useful to get more entropy if you need higher collision resistance.
 
-    iconsFromString 120 9.5 6 "hash icon"
+    iconsFromString 120 9.5 4 "hash icon"
 
 ![](https://github.com/Zinggi/elm-hash-icon/raw/master/examples/imgs/hashIcons.svg?sanitize=true)
 
