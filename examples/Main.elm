@@ -6,31 +6,21 @@ import Html.Events exposing (onInput)
 import HashIcon exposing (..)
 
 
-view : ( String, String ) -> Html ( String, String )
-view ( inputString, ratio ) =
+type alias Model =
+    ( String, String, String )
+
+
+view : Model -> Html Model
+view (( inputString, ratio, size ) as model) =
     let
-        r =
-            String.toFloat ratio |> Result.withDefault 1.4
+        ( r, iconSize ) =
+            ( String.toFloat ratio |> Result.withDefault 1.4, String.toInt size |> Result.withDefault 120 )
     in
         div []
-            [ div []
-                [ text "input:"
-                , input [ onInput (\newI -> ( newI, ratio )), value inputString, placeholder "Try your name" ] []
-                ]
-            , div []
-                [ text "ratio:"
-                , input
-                    [ onInput (\newR -> ( inputString, newR ))
-                    , type_ "number"
-                    , step "0.01"
-                    , value ratio
-                    , Attr.min "1"
-                    ]
-                    []
-                ]
+            [ inputs model
             , h3 []
                 [ text "Icon" ]
-            , iconFromString r inputString
+            , iconFromString iconSize r inputString
             , hr [] []
             , text
                 (toString (estimateNumberOfPossibleIcons r)
@@ -41,23 +31,59 @@ view ( inputString, ratio ) =
             , hr [] []
             , div []
                 [ text "100 more:"
-                , div [] (iconsFromString r 100 inputString)
+                , div [] (iconsFromString iconSize r 100 inputString)
                 ]
             , hr [] []
             , div []
                 [ text "worst 100 icons:"
                 , div []
-                    (List.indexedMap (\i cs -> iconWithColor cs (inputString ++ toString i))
+                    (List.indexedMap (\i cs -> iconWithColor iconSize cs (inputString ++ toString i))
                         (List.take 100 (allColorCombinations r))
                     )
                 ]
             ]
 
 
-main : Program Never ( String, String ) ( String, String )
+inputs : Model -> Html Model
+inputs ( inputString, ratio, size ) =
+    div []
+        [ div []
+            [ text "input:"
+            , input
+                [ onInput (\newI -> ( newI, ratio, size ))
+                , value inputString
+                , placeholder "Try your name"
+                ]
+                []
+            ]
+        , div []
+            [ text "ratio:"
+            , input
+                [ onInput (\newR -> ( inputString, newR, size ))
+                , type_ "number"
+                , step "0.01"
+                , value ratio
+                , Attr.min "1"
+                ]
+                []
+            ]
+        , div []
+            [ text "size:"
+            , input
+                [ onInput (\newS -> ( inputString, ratio, newS ))
+                , type_ "number"
+                , value size
+                , Attr.min "12"
+                ]
+                []
+            ]
+        ]
+
+
+main : Program Never Model Model
 main =
     Html.beginnerProgram
         { view = view
         , update = \msg model -> msg
-        , model = ( "", "1.4" )
+        , model = ( "", "2.1", "120" )
         }

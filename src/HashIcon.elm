@@ -7,8 +7,10 @@ module HashIcon
         , estimateEntropy
         , iconsFromString
         , iconFromStringWithSeed
+        , iconsFromStringWithSeed
         , randomIcon
         , Ratio
+        , Size
         )
 
 {-|
@@ -16,7 +18,7 @@ module HashIcon
 
 # Icons
 
-@docs Ratio
+@docs Ratio, Size
 
 @docs iconFromString, iconsFromString, iconWithColor
 
@@ -28,7 +30,7 @@ module HashIcon
 
 ## Other
 
-@docs randomIcon, iconFromStringWithSeed
+@docs randomIcon, iconFromStringWithSeed, iconsFromStringWithSeed
 
 -}
 
@@ -61,47 +63,60 @@ type alias Ratio =
     Float
 
 
+{-| -}
+type alias Size =
+    Int
+
+
 {-| Can be used to generate random icons
 -}
-randomIcon : Ratio -> Generator (Html msg)
-randomIcon ratio =
+randomIcon : Size -> Ratio -> Generator (Html msg)
+randomIcon size ratio =
     Random.map2 (,) (goodColors ratio) randomFontIcon
-        |> Random.map (\( c1c2c3, icon ) -> constantIcon c1c2c3 icon)
+        |> Random.map (\( c1c2c3, icon ) -> constantIcon size c1c2c3 icon)
 
 
-{-|
+{-| Turns some text into an icon.
+Given the same string, the icon will always be the same.
 
-    iconFromString 2.1 "hash icon"
+    iconFromString 120 1.8 "hash icon"
 
 ![](./examples/imgs/hashIcon.svg)
 
 -}
-iconFromString : Ratio -> String -> Html msg
+iconFromString : Size -> Ratio -> String -> Html msg
 iconFromString =
-    -- TODO: make size configurable
     iconFromStringWithSeed 42
 
 
 {-| Same as `iconFromString`, but allows you to adjust the seed used in the internal Murmur3 hash function.
 You probably don't need this.
 -}
-iconFromStringWithSeed : Int -> Ratio -> String -> Html msg
-iconFromStringWithSeed seed ratio string =
-    Random.step (randomIcon ratio) (Random.initialSeed (Murmur3.hashString seed string))
+iconFromStringWithSeed : Int -> Size -> Ratio -> String -> Html msg
+iconFromStringWithSeed seed size ratio string =
+    Random.step (randomIcon size ratio) (Random.initialSeed (Murmur3.hashString seed string))
         |> Tuple.first
 
 
 {-| Same as `iconFromString`, but gives you a list of icons.
 Useful to get more entropy if you need higher collision resistance.
 
-    iconsFromString 9.5 6 "hash icon"
+    iconsFromString 120 9.5 6 "hash icon"
 
 ![](./examples/imgs/hashIcons.svg)
 
 -}
-iconsFromString : Ratio -> Int -> String -> List (Html msg)
-iconsFromString ratio num string =
-    List.map (\i -> iconFromStringWithSeed i ratio string) (List.range 1 num)
+iconsFromString : Size -> Ratio -> Int -> String -> List (Html msg)
+iconsFromString size ratio num string =
+    List.map (\i -> iconFromStringWithSeed i size ratio string) (List.range 1 num)
+
+
+{-| Same as `iconsFromString`, but allows you to specify an offset to the seed used
+in the internal Murmur3 hash function. You probably don't need this.
+-}
+iconsFromStringWithSeed : Int -> Size -> Ratio -> Int -> String -> List (Html msg)
+iconsFromStringWithSeed seedOffset size ratio num string =
+    List.map (\i -> iconFromStringWithSeed (i + seedOffset) size ratio string) (List.range 1 num)
 
 
 {-| Shows you the number of possible icons for a given ratio.
@@ -125,13 +140,13 @@ estimateEntropy ratio =
 
 {-| Display an icon with a fixed color scheme. Very useful in combination with allColorCombinations.
 -}
-iconWithColor : ( Color, Color, Color ) -> String -> Html msg
-iconWithColor c1c2c3 string =
+iconWithColor : Size -> ( Color, Color, Color ) -> String -> Html msg
+iconWithColor size c1c2c3 string =
     let
         ( icon, _ ) =
             Random.step randomFontIcon (Random.initialSeed (Murmur3.hashString 42 string))
     in
-        constantIcon c1c2c3 icon
+        constantIcon size c1c2c3 icon
 
 
 {-| Gives you all possible colors combinations that can occur for a given ratio, sorted by contrast ratio,
@@ -160,10 +175,17 @@ allColorCombinations ratio =
             )
 
 
-constantIcon : ( Color, Color, Color ) -> (Color -> number -> Html msg) -> Html msg
-constantIcon ( c1, c2, c3 ) icon =
+{-| tested with svg width=120 height=120
+rect x=10 y=10 width=100 height=100 rx=12 ry=12 strokeWidth=12
+foreignObject x=20 y=20 width=80 height=80
+
+    -> 120 -> (120, 120*1/12, 120*10/12, 120/10, 120*2/12, 120*8/12)
+
+-}
+constantIcon : Size -> ( Color, Color, Color ) -> (Color -> number -> Html msg) -> Html msg
+constantIcon size ( c1, c2, c3 ) icon =
     svg
-        [ width "120", height "120", viewBox "0 0 120 120" ]
+        [ width (toString size), height (toString size), viewBox "0 0 120 120" ]
         [ rect
             [ x "10"
             , y "10"
