@@ -81,7 +81,7 @@ Given the same string, the icon will always be the same.
 
     iconFromString 120 1.8 "hash icon"
 
-![](./examples/imgs/hashIcon.svg)
+![](https://github.com/Zinggi/elm-hash-icon/raw/master/examples/imgs/hashIcon.svg?sanitize=true)
 
 -}
 iconFromString : Size -> Ratio -> String -> Html msg
@@ -103,7 +103,7 @@ Useful to get more entropy if you need higher collision resistance.
 
     iconsFromString 120 9.5 6 "hash icon"
 
-![](./examples/imgs/hashIcons.svg)
+![](https://github.com/Zinggi/elm-hash-icon/raw/master/examples/imgs/hashIcons.svg?sanitize=true)
 
 -}
 iconsFromString : Size -> Ratio -> Int -> String -> List (Html msg)
