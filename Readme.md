@@ -1,6 +1,6 @@
 # Hash Icons
 
-![](https://github.com/Zinggi/elm-hash-icon/raw/master/examples/imgs/hashOfElm.svg)
+![](https://github.com/Zinggi/elm-hash-icon/raw/master/examples/imgs/hashOfElm.svg?sanitize=true)
 
 **[Demo](https://zinggi.github.io/randomDemos/other/elmHashIcon.html)** / [Source](https://github.com/Zinggi/elm-hash-icon/blob/master/examples/Main.elm)
 
