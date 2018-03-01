@@ -1,8 +1,8 @@
 # Hash Icons
 
-![](./examples/imgs/hashOfElm.svg)
+![](https://github.com/Zinggi/elm-hash-icon/raw/master/examples/imgs/hashOfElm.svg)
 
-**[Demo]()** / [Source]()
+**[Demo](https://zinggi.github.io/randomDemos/other/elmHashIcon.html)** / [Source](https://github.com/Zinggi/elm-hash-icon/blob/master/examples/Main.elm)
 
 This implements a sort of **visual hash** function.  
 The idea is to create a unique icon for every possible input.  
@@ -14,11 +14,12 @@ It might also be used to quickly confirm if two files are different.
 ## Features
 
 From a visual hash function, we want a few different features:
-    * Every possible value should be **easy to remember**
-    * **No** two values should be too easy to **confuse**
-    * Every icon should look 'good' or at least **not ugly**
-    * There should be a high number of possible icons, such that **collisions** are **rare**
-    * These properties should also hold for **colorblind** people
+  
+  * Every possible value should be **easy to remember**
+  * **No** two values should be too easy to **confuse**
+  * Every icon should look 'good' or at least **not ugly**
+  * There should be a high number of possible icons, such that **collisions** are **rare**
+  * These properties should also hold for **colorblind** people
 
 These goals are conflicting, but I think this library (and the idea in general) provides a nice trade-off.
 
