@@ -1,4 +1,4 @@
-# Hash icons
+# Hash Icons
 
 ![](./examples/imgs/hashOfElm.svg)
 

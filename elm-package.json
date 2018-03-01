@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
     "summary": "A library for creating consistent, good looking, random icons",
-    "repository": "https://github.com/user/project.git",
+    "repository": "https://github.com/Zinggi/elm-hash-icon.git",
     "license": "BSD3",
     "source-directories": [
         "src",
