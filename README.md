@@ -35,8 +35,15 @@ The trade-off between collision resistance and good looking icons is adjustable 
 Color combinations with a contrast ratio below the cut-off ratio are discarded.
 
 To increase the collision resistance, you might want to use multiple icons in a row.
-E.g. with a ratio of 3.4 a row of 7 icons provides as many bytes as MD5.
-Or with a ratio of 8.4 we would need 8 icons, but it would look much nicer.
+~~E.g. with a ratio of 3.4 a row of 7 icons provides as many bytes as MD5.
+Or with a ratio of 8.4 we would need 8 icons, but it would look much nicer.~~
+
+**Warning:** The above is not correct!  
+The way I generate multiple icons from one string does not provide the expected collision resistance.  
+Turns out it's much more complicated, read [this paper](http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.99.9368).  
+**TODO**: switch to a better hash function such that the above becomes true.
+(At least for a reasonably small (1-20) number of icons).
+
 
 ## Customize
 Want to use another set of colors? Another set of icons?  
