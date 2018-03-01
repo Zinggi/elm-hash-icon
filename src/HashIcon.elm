@@ -9,7 +9,7 @@ module HashIcon
         , iconFromStringWithSeed
         , iconsFromStringWithSeed
         , randomIcon
-        , Ratio
+        , CutOffRatio
         , Size
         , iconFromStringWithBrands
         , iconsFromStringWithBrands
@@ -29,7 +29,7 @@ module HashIcon
 All functions are available in two variants, normal or with brands.
 The ones with brands add a bit more entropy, but you might not want to use icons of other brands in your product.
 
-@docs Ratio, Size
+@docs CutOffRatio, Size
 
 @docs iconFromString, iconsFromString, iconWithColor
 
@@ -77,7 +77,7 @@ These values seem to provide a quite good trade-off between good icons and still
   - 8.4 -> Almost no bad one. Ca. 16 bits
 
 -}
-type alias Ratio =
+type alias CutOffRatio =
     Float
 
 
@@ -88,14 +88,14 @@ type alias Size =
 
 {-| Can be used to generate random icons
 -}
-randomIcon : Size -> Ratio -> Generator (Html msg)
+randomIcon : Size -> CutOffRatio -> Generator (Html msg)
 randomIcon size ratio =
     Random.map2 (,) (goodColors ratio) randomFontIcon
         |> Random.map (\( c1c2c3, icon ) -> constantIcon size c1c2c3 icon)
 
 
 {-| -}
-randomIconWithBrands : Size -> Ratio -> Generator (Html msg)
+randomIconWithBrands : Size -> CutOffRatio -> Generator (Html msg)
 randomIconWithBrands size ratio =
     Random.map2 (,) (goodColors ratio) randomFontIconBrands
         |> Random.map (\( c1c2c3, icon ) -> constantIcon size c1c2c3 icon)
@@ -109,13 +109,13 @@ Given the same string, the icon will always be the same.
 ![](https://github.com/Zinggi/elm-hash-icon/raw/master/examples/imgs/hashIcon.svg?sanitize=true)
 
 -}
-iconFromString : Size -> Ratio -> String -> Html msg
+iconFromString : Size -> CutOffRatio -> String -> Html msg
 iconFromString =
     iconFromStringWithSeed 42
 
 
 {-| -}
-iconFromStringWithBrands : Size -> Ratio -> String -> Html msg
+iconFromStringWithBrands : Size -> CutOffRatio -> String -> Html msg
 iconFromStringWithBrands =
     iconFromStringWithSeedWithBrands 42
 
@@ -123,14 +123,14 @@ iconFromStringWithBrands =
 {-| Same as `iconFromString`, but allows you to adjust the seed used in the internal Murmur3 hash function.
 You probably don't need this.
 -}
-iconFromStringWithSeed : Int -> Size -> Ratio -> String -> Html msg
+iconFromStringWithSeed : Int -> Size -> CutOffRatio -> String -> Html msg
 iconFromStringWithSeed seed size ratio string =
     Random.step (randomIcon size ratio) (Random.initialSeed (Murmur3.hashString seed string))
         |> Tuple.first
 
 
 {-| -}
-iconFromStringWithSeedWithBrands : Int -> Size -> Ratio -> String -> Html msg
+iconFromStringWithSeedWithBrands : Int -> Size -> CutOffRatio -> String -> Html msg
 iconFromStringWithSeedWithBrands seed size ratio string =
     Random.step (randomIconWithBrands size ratio) (Random.initialSeed (Murmur3.hashString seed string))
         |> Tuple.first
@@ -144,13 +144,13 @@ Useful to get more entropy if you need higher collision resistance.
 ![](https://github.com/Zinggi/elm-hash-icon/raw/master/examples/imgs/hashIcons.svg?sanitize=true)
 
 -}
-iconsFromString : Size -> Ratio -> Int -> String -> List (Html msg)
+iconsFromString : Size -> CutOffRatio -> Int -> String -> List (Html msg)
 iconsFromString size ratio num string =
     List.map (\i -> iconFromStringWithSeed i size ratio string) (List.range 1 num)
 
 
 {-| -}
-iconsFromStringWithBrands : Size -> Ratio -> Int -> String -> List (Html msg)
+iconsFromStringWithBrands : Size -> CutOffRatio -> Int -> String -> List (Html msg)
 iconsFromStringWithBrands size ratio num string =
     List.map (\i -> iconFromStringWithSeedWithBrands i size ratio string) (List.range 1 num)
 
@@ -158,13 +158,13 @@ iconsFromStringWithBrands size ratio num string =
 {-| Same as `iconsFromString`, but allows you to specify an offset to the seed used
 in the internal Murmur3 hash function. You probably don't need this.
 -}
-iconsFromStringWithSeed : Int -> Size -> Ratio -> Int -> String -> List (Html msg)
+iconsFromStringWithSeed : Int -> Size -> CutOffRatio -> Int -> String -> List (Html msg)
 iconsFromStringWithSeed seedOffset size ratio num string =
     List.map (\i -> iconFromStringWithSeed (i + seedOffset) size ratio string) (List.range 1 num)
 
 
 {-| -}
-iconsFromStringWithSeedWithBrands : Int -> Size -> Ratio -> Int -> String -> List (Html msg)
+iconsFromStringWithSeedWithBrands : Int -> Size -> CutOffRatio -> Int -> String -> List (Html msg)
 iconsFromStringWithSeedWithBrands seedOffset size ratio num string =
     List.map (\i -> iconFromStringWithSeedWithBrands (i + seedOffset) size ratio string) (List.range 1 num)
 
@@ -176,26 +176,26 @@ Note: Since I wasn't sure if I got the combinatorics right,
 I called it estimate, but it might also be the correct number 🤷
 
 -}
-estimateNumberOfPossibleIcons : Ratio -> Int
+estimateNumberOfPossibleIcons : CutOffRatio -> Int
 estimateNumberOfPossibleIcons ratio =
     List.length (allColorCombinations ratio) * (465 + 115)
 
 
 {-| -}
-estimateNumberOfPossibleIconsWithBrands : Ratio -> Int
+estimateNumberOfPossibleIconsWithBrands : CutOffRatio -> Int
 estimateNumberOfPossibleIconsWithBrands ratio =
     List.length (allColorCombinations ratio) * (465 + 115 + 324)
 
 
 {-| The same as `estimateNumberOfPossibleIcons`, but in bits.
 -}
-estimateEntropy : Ratio -> Float
+estimateEntropy : CutOffRatio -> Float
 estimateEntropy ratio =
     logBase 2 (toFloat <| estimateNumberOfPossibleIcons ratio)
 
 
 {-| -}
-estimateEntropyWithBrands : Ratio -> Float
+estimateEntropyWithBrands : CutOffRatio -> Float
 estimateEntropyWithBrands ratio =
     logBase 2 (toFloat <| estimateNumberOfPossibleIconsWithBrands ratio)
 
@@ -226,7 +226,7 @@ e.g from worst combination to best.
 Peeking at the top values of this list allows you to find a nice value for the ratio.
 Combine this with `iconWithColor` to look at the resulting icons.
 -}
-allColorCombinations : Ratio -> List ( Color, Color, Color )
+allColorCombinations : CutOffRatio -> List ( Color, Color, Color )
 allColorCombinations ratio =
     List.concatMap (\c1 -> List.concatMap (\c2 -> List.map (\c3 -> ( c1, c2, c3 )) (white :: colors)) colors) (white :: colors)
         |> List.filter
