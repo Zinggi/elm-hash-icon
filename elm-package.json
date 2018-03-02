@@ -1,5 +1,5 @@
 {
-    "version": "2.0.1",
+    "version": "2.0.2",
     "summary": "A library for creating consistent, good looking, random icons",
     "repository": "https://github.com/Zinggi/elm-hash-icon.git",
     "license": "BSD3",
